@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import { ENV } from '../lib/env.js';
+import { ENV } from '../../lib/env.js';
 
 
 export const redisClient = new Redis({

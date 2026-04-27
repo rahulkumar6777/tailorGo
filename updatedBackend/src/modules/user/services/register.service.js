@@ -9,7 +9,7 @@ export const userRegisterInitService = async (userData) => {
         const { name, email, phoneNo, password } = userData;
         const existingUser = await model.User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email already exists' });
+            throw new Error('Email already exists')
         }
 
         const referralCode = generateReferralCode();
