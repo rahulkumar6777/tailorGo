@@ -1,9 +1,9 @@
-import { userLoginService } from "../services/login.service.js";
+import { tailorLoginService } from "../services/login.service.js";
 import { GenerateToken } from "../../../shared/auth/token.service.js";
 import { validationResult } from "express-validator";
 import { getAccessTokenOptions, getRefreshTokenOptions } from "../../../shared/auth/cookieOption.js";
 
-export const userLoginController = async (req, res) => {
+export const tailorLoginController = async (req, res) => {
     try {
 
         const errors = validationResult(req);
@@ -13,7 +13,7 @@ export const userLoginController = async (req, res) => {
             })
         }
 
-        const user = await userLoginService(req.body);
+        const user = await tailorLoginService(req.body);
 
         const { RefreshToken, AccessToken } = await GenerateToken(user._id, req, user?.role);
 
