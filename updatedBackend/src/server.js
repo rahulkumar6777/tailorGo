@@ -9,6 +9,14 @@ const PORT = ENV.PORT
 import '../src/shared/workers/verificationMailer.js'
 import '../src/shared/workers/welcomeWorker.js'
 
+
+//healthcheck routes
+app.use('/health' , (req ,res)=> {
+    return res.status(200).json({
+        date: new Date(),
+        data: 'healthy'
+    })
+})
 // routes
 import indexRouter from "./routes/index.js";
 app.use('/api', indexRouter)
