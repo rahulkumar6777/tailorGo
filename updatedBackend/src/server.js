@@ -11,9 +11,8 @@ import '../src/shared/workers/welcomeWorker.js'
 
 
 //healthcheck routes
-app.use('/health' , (req ,res)=> {
+app.use('/tailorGoHealth' , (req ,res)=> {
     return res.status(200).json({
-        date: new Date(),
         data: 'healthy'
     })
 })
