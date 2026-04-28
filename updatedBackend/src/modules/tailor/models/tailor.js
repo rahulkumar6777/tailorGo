@@ -15,6 +15,12 @@ const tailorSchema = new mongoose.Schema({
         trim: true,
         match: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
     },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
     phoneNo: {
         type: String,
         trim: true,

@@ -1,10 +1,24 @@
 import { model } from '../../../models/index.js';
 import { sendOtp } from '../../../shared/email/sendOtp.js';
 import { uploadOnCloudinary } from "../../../shared/cloudinary/cloudinary.service.js";
+import * as crypto from 'crypto'
 
 const normalizeVerificationType = (verificationType) => {
     if (verificationType === 'adharCard') return 'aadharCard';
     return verificationType;
+}
+
+function generateRandomAlphabets(length = 6) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = crypto.randomBytes(length);
+    let result = '';
+
+    for (let i = 0; i < length; i++) {
+        const index = bytes[i] % alphabet.length;
+        result += alphabet[index];
+    }
+
+    return result;
 }
 
 export const registerInitTailor = async (tailorData, files = {}) => {
@@ -22,8 +36,13 @@ export const registerInitTailor = async (tailorData, files = {}) => {
         }
 
 
+        const randomwords = generateRandomAlphabets(6)
+        const username = shopName.toLowerCase().replace(/\s+/g, '') + randomWords.toLowerCase();
+
+
         const newTailor = new model.Tailor({
             fullName: name,
+            username,
             email,
             phoneNo,
             password,
@@ -40,7 +59,7 @@ export const registerInitTailor = async (tailorData, files = {}) => {
             }
         });
 
-        
+
         // verification photos
         if (verificationPhotos.length) {
             for (const file of verificationPhotos) {
@@ -53,7 +72,7 @@ export const registerInitTailor = async (tailorData, files = {}) => {
             }
         }
 
-        
+
         // work experience photos
         if (workExperiencePhotos.length) {
             for (const file of workExperiencePhotos) {
@@ -65,7 +84,7 @@ export const registerInitTailor = async (tailorData, files = {}) => {
             }
         }
 
-        
+
         await sendOtp(email, 'tailor')
 
         await newTailor.save();
