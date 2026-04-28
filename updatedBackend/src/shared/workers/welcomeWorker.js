@@ -45,7 +45,7 @@ const worker = new Worker("tailorGo-WelcomeMessage", async (job) => {
             nextStepTitle: copy.nextStepTitle,
             nextStep: copy.nextStep,
             ctaText: copy.ctaText,
-            ctaUrl: ENV.FRONTEND_URL || 'http://localhost:5173',
+            ctaUrl: ENV.FRONTEND_URL,
             footerNote: copy.footerNote
         };
 
