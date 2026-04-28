@@ -29,8 +29,6 @@ export const tailorInitRegister = async (req, res) => {
 
         const tailorData = req.body;
 
-        console.log(req.files)
-
         await registerInitTailor(tailorData, req.files);
 
         return res.status(201).json({
@@ -61,6 +59,7 @@ export const tailorRegisterVerify = async (req, res) => {
 
         const tailor = await registerverifyTailor(email, code);
         const queueData = {
+            tailorId: tailor._id.toString(),
             fullname: tailor.fullName,
             email: tailor.email,
             age: tailor.age,

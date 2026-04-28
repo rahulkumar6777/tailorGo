@@ -49,6 +49,35 @@
       border-radius: 4px;
       border: 1px solid #ddd;
     }
+    .actions {
+      margin-top: 24px;
+      padding: 18px;
+      background: #f8fafc;
+      border: 1px solid #d7dde8;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 18px;
+      background: #2563eb;
+      color: #ffffff !important;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .link-copy {
+      word-break: break-all;
+      color: #555555;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .expiry {
+      margin-top: 10px;
+      color: #b54708;
+      font-size: 13px;
+      font-weight: bold;
+    }
     .footer {
       background: #ecf0f1;
       padding: 15px;
@@ -83,6 +112,13 @@
         {{#each verificationPhotos}}
           <img src="{{this}}" alt="Verification Photo">
         {{/each}}
+      </div>
+
+      <div class="actions">
+        <h2>Admin Verification</h2>
+        <a class="button" href="{{verifyLink}}" target="_blank" rel="noopener">Verify Tailor</a>
+        <p class="expiry">This one-time link expires in {{linkExpiresInMinutes}} minutes.</p>
+        <p class="link-copy">{{verifyLink}}</p>
       </div>
     </div>
     <div class="footer">

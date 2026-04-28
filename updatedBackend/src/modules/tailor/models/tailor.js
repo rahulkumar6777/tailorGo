@@ -113,7 +113,7 @@ const tailorSchema = new mongoose.Schema({
 
 
 tailorSchema.pre('save', async function () {
-    if (!this.isModified('password')) {
+    if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 12)
     }
 });
