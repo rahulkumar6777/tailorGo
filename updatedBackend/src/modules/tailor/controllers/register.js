@@ -1,12 +1,27 @@
 import { verificationQueue } from "../../../shared/queue/queues.js";
 import { registerInitTailor, registerverifyTailor } from "../services/register.service.js";
 import { validationResult } from 'express-validator';
+import fs from 'fs'
+
+const cleanupLocalUploads = (files = {}) => {
+    const uploadedFiles = [
+        ...(files.verificationPhotos || []),
+        ...(files.workExperiencePhotos || [])
+    ];
+
+    for (const file of uploadedFiles) {
+        if (file?.path && fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+        }
+    }
+}
 
 export const tailorInitRegister = async (req, res) => {
     try {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            cleanupLocalUploads(req.files);
             return res.status(400).json({
                 message: errors.array()[0].msg
             })
@@ -14,7 +29,9 @@ export const tailorInitRegister = async (req, res) => {
 
         const tailorData = req.body;
 
-        await registerInitTailor(tailorData , req.files);
+        console.log(req.files)
+
+        await registerInitTailor(tailorData, req.files);
 
         return res.status(201).json({
             success: true,
@@ -23,6 +40,8 @@ export const tailorInitRegister = async (req, res) => {
 
 
     } catch (error) {
+
+        cleanupLocalUploads(req.files);
 
         return res.status(400).json({
             success: false,
@@ -45,12 +64,14 @@ export const tailorRegisterVerify = async (req, res) => {
             fullname: tailor.fullName,
             email: tailor.email,
             age: tailor.age,
-            experience: tailor.experience,
-            workExperiencePhotos: tailor.workExperiencePhotos,
-            adharno: tailor.adharno
-        }
+            yearsOfExperience: tailor.yearsOfExperience,
+            workExperiencePhotos: tailor.workExperiencePhotos.map(p => p.photo),
+            verificationPhotos: tailor.verificationPhotos.map(p => p.photo),
+            verificationType: tailor.verificationType
+        };
 
-        verificationQueue.add('verificationqueue',)
+
+        verificationQueue.add('verificationqueue', queueData)
 
 
         return res.json({

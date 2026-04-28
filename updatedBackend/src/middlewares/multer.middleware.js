@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     fileFilter: async function (req, file, cb) {
-        const allowed = /jpeg|png|jpg/;
+        const allowed = /jpeg|png|jpg|webp/;
         const ext = path.extname(file.originalname).toLocaleLowerCase();
         if (allowed.test(ext)) {
             cb(null, true);

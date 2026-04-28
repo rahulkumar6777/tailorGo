@@ -2,13 +2,18 @@ import { model } from '../../../models/index.js';
 import { sendOtp } from '../../../shared/email/sendOtp.js';
 import { uploadOnCloudinary } from "../../../shared/cloudinary/cloudinary.service.js";
 
-export const registerInitTailor = async (tailorData, files) => {
+const normalizeVerificationType = (verificationType) => {
+    if (verificationType === 'adharCard') return 'aadharCard';
+    return verificationType;
+}
+
+export const registerInitTailor = async (tailorData, files = {}) => {
     try {
 
-        if (!files || !tailorData) {
-            throw new Error('files and tailorData is required')
-        }
+
         const { name, email, phoneNo, password, shopName, shopAddress, servicesOffered, verificationType, age, gender, experience } = tailorData;
+        const verificationPhotos = files.verificationPhotos || [];
+        const workExperiencePhotos = files.workExperiencePhotos || [];
 
         const existingTailor = await model.Tailor.findOne({ email });
         if (existingTailor) {
@@ -24,39 +29,45 @@ export const registerInitTailor = async (tailorData, files) => {
             shopName,
             shopAddress,
             servicesOffered,
-            verificationType,
+            verificationType: normalizeVerificationType(verificationType),
             age,
             gender,
             yearsOfExperience: experience
         });
 
+        console.log('rached 1')
         // verification photos
-        if (files.verificationPhotos) {
-            for (const file of files.verificationPhotos) {
+        if (verificationPhotos.length) {
+            for (const file of verificationPhotos) {
                 const response = await uploadOnCloudinary(file.path);
+                console.log(response)
                 newTailor.verificationPhotos.push({
-                    photo: response.url,
+                    photo: response.secure_url || response.url,
                     photoPublicId: response.public_id
                 });
             }
         }
 
+        console.log('rached 2')
         // work experience photos
-        if (files.workExperiencePhotos) {
-            for (const file of files.workExperiencePhotos) {
+        if (workExperiencePhotos.length) {
+            for (const file of workExperiencePhotos) {
                 const response = await uploadOnCloudinary(file.path);
                 newTailor.workExperiencePhotos.push({
-                    photo: response.url,
+                    photo: response.secure_url || response.url,
                     photoPublicId: response.public_id
                 });
             }
         }
 
+        console.log('rached 3')
         await sendOtp(email, 'tailor')
 
         await newTailor.save();
 
+        console.log('rached 5')
         return newTailor;
+
 
     } catch (error) {
         throw error

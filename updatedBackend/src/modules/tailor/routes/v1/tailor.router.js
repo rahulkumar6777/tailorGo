@@ -9,7 +9,7 @@ import upload from '../../../../middlewares/multer.middleware.js';
 const tailorRouter = express.Router();
 
 
-tailorRouter.post('/register/init', validateTailorRegisterInput, upload.fields([{ name: verificationphotos, maxCount: 2 }, { name: workexperiencephotos, maxCount: 10 }]), tailorInitRegister);
+tailorRouter.post('/register/init', upload.fields([{ name: 'verificationPhotos', maxCount: 2 }, { name: 'workExperiencePhotos', maxCount: 10 }]), validateTailorRegisterInput, tailorInitRegister);
 tailorRouter.post('/register/verify', validateTailorVerifyInput, tailorRegisterVerify);
 tailorRouter.post('/login', loginValidate, tailorLoginController)
 
