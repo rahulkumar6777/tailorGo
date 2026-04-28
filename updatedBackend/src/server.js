@@ -13,6 +13,7 @@ import '../src/shared/workers/welcomeWorker.js'
 //healthcheck routes
 app.use('/tailorGoHealth' , (req ,res)=> {
     return res.status(200).json({
+        date: new Date().toLocaleTimeString(),
         data: 'healthy'
     })
 })
