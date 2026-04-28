@@ -37,7 +37,7 @@ export const registerInitTailor = async (tailorData, files = {}) => {
 
 
         const randomwords = generateRandomAlphabets(6)
-        const username = shopName.toLowerCase().replace(/\s+/g, '') + randomWords.toLowerCase();
+        const username = shopName.toLowerCase().replace(/\s+/g, '') + randomwords.toLowerCase();
 
 
         const newTailor = new model.Tailor({

@@ -34,13 +34,14 @@ export const validateTailorRegisterInput = [
             throw new Error('coordinates must be object');
         }
 
-        const { lat, lng } = value;
+        const lat = Number(value.lat);
+        const lng = Number(value.lng);
 
-        if (typeof lat !== 'number' || lat < -90 || lat > 90) {
+        if (isNaN(lat) || lat < -90 || lat > 90) {
             throw new Error('invalid latitude');
         }
 
-        if (typeof lng !== 'number' || lng < -180 || lng > 180) {
+        if (isNaN(lng) || lng < -180 || lng > 180) {
             throw new Error('invalid longitude');
         }
 
