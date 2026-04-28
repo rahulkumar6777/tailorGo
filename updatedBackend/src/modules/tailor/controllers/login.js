@@ -14,6 +14,11 @@ export const tailorLoginController = async (req, res) => {
         }
 
         const user = await tailorLoginService(req.body);
+        if (user.verificationStatus !== 'verified') {
+            return res.status(403).json({
+                message: "Please Verify your Account"
+            })
+        }
 
         const { RefreshToken, AccessToken } = await GenerateToken(user._id, req, user?.role);
 

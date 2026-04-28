@@ -20,6 +20,19 @@ const tailorSchema = new mongoose.Schema({
         trim: true,
         match: /^\d{10}$/
     },
+    yearsOfExperience: {
+        type: Number,
+    },
+    workExperiencePhotos: [
+        {
+            photo: {
+                type: String
+            },
+            photoPublicId: {
+                type: String
+            }
+        }
+    ],
     password: {
         type: String,
         required: true,
@@ -73,9 +86,19 @@ const tailorSchema = new mongoose.Schema({
 
     verificationType: {
         type: String,
-        enum: ['adharCard', 'voterId'],
+        enum: ['aadharCard', 'voterId'],
         required: true
     },
+    verificationPhotos: [
+        {
+            photo: {
+                type: String
+            },
+            photoPublicId: {
+                type: String
+            }
+        }
+    ],
     status: {
         type: String,
         enum: ['pending', 'active', 'suspended'],

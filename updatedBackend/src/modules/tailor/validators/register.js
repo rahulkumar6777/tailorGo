@@ -4,6 +4,7 @@ export const validateTailorRegisterInput = [
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Invalid email format'),
     body('phoneNo').notEmpty().withMessage('Phone number is required'),
+    body('experience').notEmpty().withMessage(''),
     body('gender').isIn(['male', 'female', 'other']).withMessage('Gender must be either male, female or other').notEmpty().withMessage('Gender is required'),
     body('age').isInt({ min: 18, max: 70 }).withMessage('Age must be between 18 and 70').notEmpty().withMessage('Age is required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),

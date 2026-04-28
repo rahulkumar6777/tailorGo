@@ -1,15 +1,20 @@
 import { model } from '../../../models/index.js';
 import { sendOtp } from '../../../shared/email/sendOtp.js';
+import { uploadOnCloudinary } from "../../../shared/cloudinary/cloudinary.service.js";
 
-export const registerInitTailor = async (tailorData) => {
+export const registerInitTailor = async (tailorData, files) => {
     try {
 
-        const { name, email, phoneNo, password, shopName, shopAddress, servicesOffered, verificationType, age, gender } = tailorData;
+        if (!files || !tailorData) {
+            throw new Error('files and tailorData is required')
+        }
+        const { name, email, phoneNo, password, shopName, shopAddress, servicesOffered, verificationType, age, gender, experience } = tailorData;
 
         const existingTailor = await model.Tailor.findOne({ email });
         if (existingTailor) {
             throw new Error("Tailor with this email already exists");
         }
+
 
         const newTailor = new model.Tailor({
             fullName: name,
@@ -21,8 +26,31 @@ export const registerInitTailor = async (tailorData) => {
             servicesOffered,
             verificationType,
             age,
-            gender
+            gender,
+            yearsOfExperience: experience
         });
+
+        // verification photos
+        if (files.verificationPhotos) {
+            for (const file of files.verificationPhotos) {
+                const response = await uploadOnCloudinary(file.path);
+                newTailor.verificationPhotos.push({
+                    photo: response.url,
+                    photoPublicId: response.public_id
+                });
+            }
+        }
+
+        // work experience photos
+        if (files.workExperiencePhotos) {
+            for (const file of files.workExperiencePhotos) {
+                const response = await uploadOnCloudinary(file.path);
+                newTailor.workExperiencePhotos.push({
+                    photo: response.url,
+                    photoPublicId: response.public_id
+                });
+            }
+        }
 
         await sendOtp(email, 'tailor')
 
@@ -51,7 +79,7 @@ export const registerverifyTailor = async (email, code) => {
 
         await model.OtpValidate.deleteOne({ email });
 
-        return true;
+        return tailor;
     } catch (error) {
         throw error
     }

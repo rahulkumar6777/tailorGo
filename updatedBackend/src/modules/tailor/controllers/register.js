@@ -1,4 +1,5 @@
-import { registerInitTailor , registerverifyTailor } from "../services/register.service.js";
+import { verificationQueue } from "../../../shared/queue/queues.js";
+import { registerInitTailor, registerverifyTailor } from "../services/register.service.js";
 import { validationResult } from 'express-validator';
 
 export const tailorInitRegister = async (req, res) => {
@@ -13,7 +14,7 @@ export const tailorInitRegister = async (req, res) => {
 
         const tailorData = req.body;
 
-        await registerInitTailor(tailorData);
+        await registerInitTailor(tailorData , req.files);
 
         return res.status(201).json({
             success: true,
@@ -39,7 +40,18 @@ export const tailorRegisterVerify = async (req, res) => {
 
         const { email, code } = req.body;
 
-        await registerverifyTailor(email, code);
+        const tailor = await registerverifyTailor(email, code);
+        const queueData = {
+            fullname: tailor.fullName,
+            email: tailor.email,
+            age: tailor.age,
+            experience: tailor.experience,
+            workExperiencePhotos: tailor.workExperiencePhotos,
+            adharno: tailor.adharno
+        }
+
+        verificationQueue.add('verificationqueue',)
+
 
         return res.json({
             success: true,
