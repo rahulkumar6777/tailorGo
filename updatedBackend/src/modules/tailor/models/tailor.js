@@ -125,6 +125,12 @@ const tailorSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'verified', 'rejected'],
         default: 'pending'
+    },
+    rating: {
+        type: Number,
+        min: 0,
+        max: 5,
+        default: 0
     }
 });
 
