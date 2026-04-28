@@ -3,15 +3,28 @@ import * as crypto from 'crypto';
 import { redisClient } from '../../core/redis/redis.js';
 import { ENV } from '../../lib/env.js';
 
+
+const extractDevice = (ua = '') => {
+    ua = ua.toLowerCase();
+
+    if (ua.includes('iphone')) return 'iPhone';
+    if (ua.includes('android')) return 'Android';
+    if (ua.includes('windows')) return 'Windows PC';
+    if (ua.includes('mac')) return 'Mac';
+    if (ua.includes('linux')) return 'Linux';
+
+    return 'Unknown Device';
+};
+
 export const GenerateToken = async (userId, req, role) => {
-    const tokenId = crypto.randomUUID(); 
+    const tokenId = crypto.randomUUID();
 
     const refreshToken = jwt.sign(
         { _id: userId, role },
         ENV.REFRESH_TOKEN_SECRET,
         {
             expiresIn: ENV.REFRESH_TOKEN_EXPIRY,
-            jwtid: tokenId 
+            jwtid: tokenId
         }
     );
 
@@ -22,9 +35,8 @@ export const GenerateToken = async (userId, req, role) => {
 
     const sessionKey = `session:${userId}:${tokenId}`;
 
-    await redisClient.setEx(
+    await redisClient.set(
         sessionKey,
-        60 * 60 * 24 * 7,
         JSON.stringify({
             hashedToken,
             ip: req?.ip || '',
@@ -32,7 +44,9 @@ export const GenerateToken = async (userId, req, role) => {
             device: extractDevice(req?.headers?.['user-agent']),
             createdAt: Date.now(),
             role
-        })
+        }),
+        'EX',
+        60 * 60 * 24 * 7
     );
 
     const accessToken = jwt.sign(
