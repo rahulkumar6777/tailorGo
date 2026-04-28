@@ -11,7 +11,8 @@ export const registerInitTailor = async (tailorData, files = {}) => {
     try {
 
 
-        const { name, email, phoneNo, password, shopName, shopAddress, servicesOffered, verificationType, age, gender, experience } = tailorData;
+        const { name, email, phoneNo, password, shopName, shopAddress, servicesOffered, verificationType, age, gender, experience, coordinates } = tailorData;
+        const { lat, lng } = tailorData.coordinates;
         const verificationPhotos = files.verificationPhotos || [];
         const workExperiencePhotos = files.workExperiencePhotos || [];
 
@@ -32,10 +33,14 @@ export const registerInitTailor = async (tailorData, files = {}) => {
             verificationType: normalizeVerificationType(verificationType),
             age,
             gender,
-            yearsOfExperience: experience
+            yearsOfExperience: experience,
+            shopCoordinates: {
+                type: "Point",
+                coordinates: [lng, lat],
+            }
         });
 
-        console.log('rached 1')
+        
         // verification photos
         if (verificationPhotos.length) {
             for (const file of verificationPhotos) {
@@ -48,7 +53,7 @@ export const registerInitTailor = async (tailorData, files = {}) => {
             }
         }
 
-        console.log('rached 2')
+        
         // work experience photos
         if (workExperiencePhotos.length) {
             for (const file of workExperiencePhotos) {
@@ -60,12 +65,11 @@ export const registerInitTailor = async (tailorData, files = {}) => {
             }
         }
 
-        console.log('rached 3')
+        
         await sendOtp(email, 'tailor')
 
         await newTailor.save();
 
-        console.log('rached 5')
         return newTailor;
 
 

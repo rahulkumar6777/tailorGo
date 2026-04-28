@@ -67,6 +67,17 @@ const tailorSchema = new mongoose.Schema({
     shopAddress: {
         type: String
     },
+    shopCoordinates: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number], // [lng, lat]
+            required: true
+        }
+    },
 
     // type of tailoring services offered
     servicesOffered: [
@@ -122,6 +133,8 @@ tailorSchema.pre('save', async function () {
 tailorSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
+
+tailorSchema.index({ shopCoordinates: '2dsphere' });
 
 
 export const Tailor = mongoose.model("Tailor", tailorSchema);

@@ -16,7 +16,6 @@ export const userLoginController = async (req, res) => {
         const user = await userLoginService(req.body);
 
         const { RefreshToken, AccessToken } = await GenerateToken(user._id, req, user?.role);
-
         return res
             .cookie('refreshToken', RefreshToken, getRefreshTokenOptions)
             .cookie('AccessToken', AccessToken, getAccessTokenOptions)
