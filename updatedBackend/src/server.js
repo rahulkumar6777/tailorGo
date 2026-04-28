@@ -7,6 +7,7 @@ const PORT = ENV.PORT
 
 //worker
 import '../src/shared/workers/verificationMailer.js'
+import '../src/shared/workers/welcomeWorker.js'
 
 // routes
 import indexRouter from "./routes/index.js";

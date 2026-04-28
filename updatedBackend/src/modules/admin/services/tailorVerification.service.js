@@ -3,7 +3,7 @@ import { ENV } from '../../../lib/env.js';
 import { model } from '../../../models/index.js';
 import { connection } from '../../../shared/queue/queues.js';
 
-const TOKEN_TTL_SECONDS = 10 * 60;
+const TOKEN_TTL_SECONDS = 60 * 60;
 const TOKEN_PREFIX = 'tailor-admin-verification:';
 
 const hashToken = (token) => crypto

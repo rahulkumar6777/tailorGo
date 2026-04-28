@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to DeployHub</title>
+    <title>{{heading}}</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,95 +11,78 @@
             padding: 0;
         }
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fb;
+            color: #1f2937;
             line-height: 1.6;
-            margin: 0;
-            padding: 0;
         }
         .container {
-            max-width: 600px;
-            margin: 40px auto;
+            max-width: 620px;
+            margin: 32px auto;
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d7dde8;
+            border-radius: 8px;
             overflow: hidden;
-            animation: slideIn 0.8s ease-out;
         }
         .header {
-            background: linear-gradient(135deg, #2a9d8f 0%, #264653 100%);
+            background: #2563eb;
             color: #ffffff;
             text-align: center;
-            padding: 30px 20px;
+            padding: 28px 22px;
         }
         .header h1 {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             margin: 0;
-            letter-spacing: 0.5px;
         }
         .content {
-            padding: 30px;
+            padding: 28px;
             font-size: 16px;
-            color: #444;
+            color: #344054;
         }
         .content p {
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
         .content strong {
-            color: #2a9d8f;
+            color: #111827;
         }
-        .content a.button {
+        .info {
+            margin: 18px 0;
+            padding: 16px;
+            border: 1px solid #d7dde8;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .info h2 {
+            margin: 0 0 8px;
+            color: #111827;
+            font-size: 18px;
+        }
+        .button {
             display: inline-block;
-            background-color: #2a9d8f;
-            color: #ffffff;
+            margin-top: 4px;
+            background-color: #2563eb;
+            color: #ffffff !important;
             text-decoration: none;
-            padding: 12px 24px;
+            padding: 12px 18px;
             border-radius: 6px;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .content a.button:hover {
-            background-color: #264653;
-            transform: translateY(-2px);
+            font-weight: 700;
         }
         .footer {
-            background-color: #f8f9fa;
+            background-color: #f8fafc;
             text-align: center;
-            padding: 15px;
-            font-size: 14px;
-            color: #6b7280;
+            padding: 16px;
+            font-size: 13px;
+            color: #667085;
             border-top: 1px solid #e5e7eb;
         }
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 620px) {
             .container {
-                margin: 20px;
-                border-radius: 8px;
+                margin: 16px;
             }
-            .header {
-                padding: 20px;
-            }
-            .header h1 {
-                font-size: 24px;
-            }
+            .header,
             .content {
                 padding: 20px;
-                font-size: 15px;
-            }
-            .content a.button {
-                padding: 10px 20px;
-                font-size: 14px;
             }
         }
     </style>
@@ -107,19 +90,23 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Welcome to DeployHub!</h1>
+            <h1>{{heading}}</h1>
         </div>
         <div class="content">
             <p>Hi <strong>{{fullname}}</strong>,</p>
-            <p>We are thrilled to have you on board! DeployHub is your one-stop solution for a Web_Hosting service.</p>
-            <p>Your registered email is: <strong>{{email}}</strong></p>
-            <p>Start exploring our services and take your projects to the next level:</p>
-            <p><a href="https://dashboard.deployhub.cloud" target="_blank" class="button">Visit DeployHub</a></p>
-            <p>We are here to support you every step of the way. If you have any questions, feel free to reach out to us.</p>
-            <p>Happy coding!</p>
+            <p>{{intro}}</p>
+            <p>Your registered email is <strong>{{email}}</strong>.</p>
+
+            <div class="info">
+                <h2>{{nextStepTitle}}</h2>
+                <p>{{nextStep}}</p>
+            </div>
+
+            <p><a href="{{ctaUrl}}" target="_blank" class="button">{{ctaText}}</a></p>
+            <p>{{footerNote}}</p>
         </div>
         <div class="footer">
-            © 2026 DeployHub. All rights reserved.
+            TailorGo helps customers connect with nearby tailors for stitching, alteration, and custom fitting.
         </div>
     </div>
 </body>

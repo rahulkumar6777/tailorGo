@@ -1,5 +1,16 @@
 import { userRegisterInitService, userRegisterVerifyService } from "../services/register.service.js";
+import { welcomeQueue } from "../../../shared/queue/queues.js";
 import { validationResult } from 'express-validator';
+
+const enqueueWelcomeEmail = (user) => {
+    welcomeQueue.add('welcome-email', {
+        fullname: user.fullName,
+        email: user.email,
+        role: 'customer'
+    }).catch((error) => {
+        console.log('Welcome email queue error', error.message);
+    });
+}
 
 export const userRegisterInitController = async (req, res) => {
     try {
@@ -27,6 +38,8 @@ export const userRegisterVerifyController = async (req, res) => {
     try {
         const { email, code } = req.body;
         const verifiedUser = await userRegisterVerifyService(email, code);
+        enqueueWelcomeEmail(verifiedUser);
+
         res.status(200).json({ 
             success: true,
             message: 'User verified successfully'

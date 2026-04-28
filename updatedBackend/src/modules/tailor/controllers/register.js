@@ -1,7 +1,17 @@
-import { verificationQueue } from "../../../shared/queue/queues.js";
+import { verificationQueue, welcomeQueue } from "../../../shared/queue/queues.js";
 import { registerInitTailor, registerverifyTailor } from "../services/register.service.js";
 import { validationResult } from 'express-validator';
 import fs from 'fs'
+
+const enqueueWelcomeEmail = (tailor) => {
+    welcomeQueue.add('welcome-email', {
+        fullname: tailor.fullName,
+        email: tailor.email,
+        role: 'tailor'
+    }).catch((error) => {
+        console.log('Welcome email queue error', error.message);
+    });
+}
 
 const cleanupLocalUploads = (files = {}) => {
     const uploadedFiles = [
@@ -70,7 +80,10 @@ export const tailorRegisterVerify = async (req, res) => {
         };
 
 
-        verificationQueue.add('verificationqueue', queueData)
+        verificationQueue.add('verificationqueue', queueData).catch((error) => {
+            console.log('Tailor verification email queue error', error.message);
+        });
+        enqueueWelcomeEmail(tailor);
 
 
         return res.json({

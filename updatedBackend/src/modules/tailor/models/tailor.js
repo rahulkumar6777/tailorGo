@@ -124,24 +124,4 @@ tailorSchema.methods.comparePassword = async function (password) {
 }
 
 
-tailorSchema.methods.GenerateAccessToken = function () {
-    return jwt.sign({
-        _id: this._id,
-        role: this.role
-    }, ENV.ACCESS_TOKEN_SECRET, {
-        expiresIn: ENV.ACCESS_TOKEN_EXPIRY
-    })
-};
-
-
-tailorSchema.methods.GenerateRefreshToken = function () {
-    return jwt.sign({
-        _id: this._id,
-        role: this.role
-    }, ENV.REFRESH_TOKEN_SECRET, {
-        expiresIn: ENV.REFRESH_TOKEN_EXPIRY
-    })
-};
-
-
 export const Tailor = mongoose.model("Tailor", tailorSchema);
