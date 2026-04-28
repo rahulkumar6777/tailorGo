@@ -7,7 +7,6 @@ export const tailorProfileControllers = async (req, res) => {
 
 
         const response = await tailorProfile(data);
-        console.log(response)
 
         res.status(200).json({
             success: true,

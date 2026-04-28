@@ -5,20 +5,26 @@ export const tailorProfile = async (data) => {
     const { username } = data;
     const cacheKey = `tailorProfile:${username}`;
 
-
+    
     const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
         return JSON.parse(cachedData);
     }
 
-
-    const tailorData = await model.Tailor.findOne({ username }).select("fullName username yearsOfExperience avatar shopName shopAddress servicesOffered rating status verificationStatus")
+    
+    const tailorData = await model.Tailor.findOne({ username })
+        .select("fullName username yearsOfExperience avatar shopName shopAddress servicesOffered rating status verificationStatus workExperiencePhotos");
 
     if (!tailorData) {
-        throw new Error({ status: 400, message: "Tailor Not Found With this username" });
+        const err = new Error("Tailor Not Found With this username");
+        err.status = 400;
+        throw err;
     }
 
+    
+    const workExperiencePhotos = (tailorData.workExperiencePhotos || []).map(p => p.photo);
 
+    
     const tailorReviewsData = await model.Review.find({ tailor: tailorData._id })
         .select("reviewerName rating comment createdAt")
         .sort({ createdAt: -1 })
@@ -26,11 +32,14 @@ export const tailorProfile = async (data) => {
 
 
     const response = {
-        tailor: tailorData,
+        tailor: {
+            ...tailorData.toObject(),
+            workExperiencePhotos
+        },
         reviews: tailorReviewsData
     };
 
-
+    
     await redisClient.set(
         cacheKey,
         JSON.stringify(response),
