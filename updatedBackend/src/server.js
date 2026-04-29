@@ -8,6 +8,7 @@ const PORT = ENV.PORT
 //worker
 import '../src/shared/workers/verificationMailer.js'
 import '../src/shared/workers/welcomeWorker.js'
+import '../src/shared/workers/orderNotificationWorker.js'
 
 
 //rate limit

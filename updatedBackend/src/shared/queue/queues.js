@@ -12,6 +12,7 @@ export const connection = new Redis({
 
 const verificationQueue = new Queue('verificationqueue', { connection });
 const welcomeQueue = new Queue('tailorGo-WelcomeMessage', { connection });
+const orderNotificationQueue = new Queue('tailorGo-OrderNotification', { connection });
 
 
-export { verificationQueue, welcomeQueue }
+export { verificationQueue, welcomeQueue, orderNotificationQueue }

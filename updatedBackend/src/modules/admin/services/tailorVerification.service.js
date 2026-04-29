@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { ENV } from '../../../lib/env.js';
 import { model } from '../../../models/index.js';
 import { connection } from '../../../shared/queue/queues.js';
+import { cacheTailorInRedis } from '../../booking/services/tailorGeo.service.js';
 
 const TOKEN_TTL_SECONDS = 60 * 60;
 const TOKEN_PREFIX = 'tailor-admin-verification:';
@@ -63,6 +64,10 @@ export const verifyTailorByAdminToken = async (token) => {
     tailor.status = 'active';
     tailor.verificationStatus = 'verified';
     await tailor.save();
+
+    cacheTailorInRedis(tailor).catch((error) => {
+        console.log('Tailor Redis geo cache update failed', error.message);
+    });
 
     return tailor;
 }

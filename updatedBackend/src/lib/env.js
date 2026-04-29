@@ -20,5 +20,7 @@ export const ENV = {
     EMAIL_PASS: process.env.EMAIL_PASS,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     API_PUBLIC_URL: process.env.API_PUBLIC_URL,
-    FRONTEND_URL: process.env.FRONTEND_URL
+    FRONTEND_URL: process.env.FRONTEND_URL,
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+    RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET
 }
