@@ -18,3 +18,14 @@ export const getRefreshTokenOptions = () => ({
   domain: ENV.NODE_ENV === "production" ? ".deployhub.cloud" : undefined,
   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 });
+
+export const getClearAccessTokenOptions = () => ({
+  ...baseOptions,
+  secure: ENV.NODE_ENV === "production",
+  sameSite: ENV.NODE_ENV === "production" ? "Strict" : "Lax"
+});
+
+export const getClearRefreshTokenOptions = () => ({
+  ...getClearAccessTokenOptions(),
+  domain: ENV.NODE_ENV === "production" ? ".deployhub.cloud" : undefined
+});

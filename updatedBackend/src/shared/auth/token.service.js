@@ -61,3 +61,11 @@ export const GenerateToken = async (userId, req, role) => {
         tokenId
     };
 };
+
+export const GenerateAccessToken = (userId, role, tokenId) => {
+    return jwt.sign(
+        { _id: userId, role, tokenId },
+        ENV.ACCESS_TOKEN_SECRET,
+        { expiresIn: ENV.ACCESS_TOKEN_EXPIRY }
+    );
+};

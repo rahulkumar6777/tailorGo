@@ -13,12 +13,14 @@ export const refreshTokenController = async (req, res) => {
         });
 
         return res
-            .cookie('refreshToken', result.RefreshToken, getRefreshTokenOptions)
-            .cookie('AccessToken', result.AccessToken, getAccessTokenOptions)
+            .cookie('refreshToken', result.RefreshToken, getRefreshTokenOptions())
+            .cookie('AccessToken', result.AccessToken, getAccessTokenOptions())
             .json({ accessToken: result.AccessToken });
 
     } catch (err) {
-        console.error(err);
+        if (!err.status || err.status >= 500) {
+            console.error(err);
+        }
 
         return res.status(err.status || 500).json({
             message: err.message || 'Internal Server Error'

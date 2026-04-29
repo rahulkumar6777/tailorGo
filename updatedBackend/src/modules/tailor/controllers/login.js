@@ -23,12 +23,13 @@ export const tailorLoginController = async (req, res) => {
         const { RefreshToken, AccessToken } = await GenerateToken(user._id, req, user?.role);
 
         return res
-            .cookie('refreshToken', RefreshToken, getRefreshTokenOptions)
-            .cookie('AccessToken', AccessToken, getAccessTokenOptions)
+            .cookie('refreshToken', RefreshToken, getRefreshTokenOptions())
+            .cookie('AccessToken', AccessToken, getAccessTokenOptions())
             .status(200)
             .json({
                 message: "Login success",
-                status: true
+                status: true,
+                accessToken: AccessToken
             })
 
     } catch (error) {

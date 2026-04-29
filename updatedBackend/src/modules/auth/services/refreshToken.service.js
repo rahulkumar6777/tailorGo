@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { redisClient } from '../../../core/redis/redis.js';
-import { GenerateToken } from '../../../shared/auth/token.service.js';
+import { GenerateAccessToken } from '../../../shared/auth/token.service.js';
 import { ENV } from '../../../lib/env.js';
 
 
@@ -78,14 +78,11 @@ export const refreshTokenService = async ({ refreshToken, ip, userAgent }) => {
         });
     }
 
-    
-    await redisClient.del(sessionKey);
+    await redisClient.expire(sessionKey, 60 * 60 * 24 * 7);
 
-    const tokens = await GenerateToken(
-        userId,
-        { ip, headers: { 'user-agent': userAgent } },
-        session.role
-    );
-
-    return tokens;
+    return {
+        AccessToken: GenerateAccessToken(userId, session.role, tokenId),
+        RefreshToken: refreshToken,
+        tokenId
+    };
 };
