@@ -10,8 +10,21 @@ import '../src/shared/workers/verificationMailer.js'
 import '../src/shared/workers/welcomeWorker.js'
 
 
+//rate limit
+import { rateLimit } from 'express-rate-limit'
+app.use(
+    "/api",
+    rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 400,
+        standardHeaders: true,
+        legacyHeaders: false,
+    }),
+);
+
+
 //healthcheck routes
-app.use('/tailorGoHealth' , (req ,res)=> {
+app.use('/tailorGoHealth', (req, res) => {
     return res.status(200).json({
         date: new Date().toLocaleTimeString(),
         data: 'healthy'
@@ -20,6 +33,12 @@ app.use('/tailorGoHealth' , (req ,res)=> {
 // routes
 import indexRouter from "./routes/index.js";
 app.use('/api', indexRouter)
+
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
+});
 
 // start the server
 app.listen(PORT, () => {
