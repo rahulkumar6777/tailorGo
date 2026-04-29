@@ -95,13 +95,12 @@ const getNearbyTailorIdsFromRedis = async ({ lat, lng, radiusKm, limit }) => {
 };
 
 const getNearbyTailorsFromMongo = async ({ lat, lng, radiusKm, limit }) => {
-  const tailors = await model.Tailor.aggregate([
+  return model.Tailor.aggregate([
     {
       $geoNear: {
-        key: "shopCoordinates",
         near: {
           type: "Point",
-          coordinates: [lng, lat]
+          coordinates: [Number(lng), Number(lat)]
         },
         distanceField: "distance",
         maxDistance: radiusKm * 1000,
@@ -109,7 +108,8 @@ const getNearbyTailorsFromMongo = async ({ lat, lng, radiusKm, limit }) => {
         query: {
           status: "active",
           verificationStatus: "verified"
-        }
+        },
+        key: "shopCoordinates"
       }
     },
     { $limit: limit },
@@ -129,11 +129,6 @@ const getNearbyTailorsFromMongo = async ({ lat, lng, radiusKm, limit }) => {
       }
     }
   ]);
-
-  return tailors.map((tailor) => ({
-    tailor,
-    distanceKm: tailor.distanceKm
-  }));
 };
 
 const hydrateTailors = async (nearbyIds = []) => {

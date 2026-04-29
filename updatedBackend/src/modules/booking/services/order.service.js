@@ -219,7 +219,29 @@ const getOrderForUserQuery = ({ orderId, user }) => {
 };
 
 export const createOrder = async ({ customerId, data, files }) => {
-  const { lat, lng } = data.coordinates;
+
+  let coords = data.coordinates;
+
+  if (typeof coords === "string") {
+    try {
+      coords = JSON.parse(coords);
+    } catch (err) {
+      throw new Error("Invalid coordinates format");
+    }
+  }
+
+  const lat = Number(coords?.lat);
+  const lng = Number(coords?.lng);
+
+
+  if (!lat || !lng) {
+    throw new Error("Invalid coordinates");
+  }
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    console.log("BAD COORDINATES:", coords);
+    throw new Error("Invalid coordinates");
+  }
   const uploadedImages = await uploadOrderImages(files, data);
   const measurementPreference = getMeasurementPreference({
     requestedPreference: data.measurementPreference,
