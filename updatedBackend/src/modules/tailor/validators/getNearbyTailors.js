@@ -11,5 +11,5 @@ export const validateNearbyTailors = [
 
   query('radius')
     .optional()
-    .isFloat({ min: 1, max: 50 }).withMessage('radius must be between 1-50 km'),
+    .isFloat({ min: 1, max: 15 }).withMessage('radius must be between 1-15 km'),
 ];

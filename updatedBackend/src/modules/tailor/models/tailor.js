@@ -19,7 +19,8 @@ const tailorSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        trim: true
+        trim: true,
+        lowercase: true
     },
     phoneNo: {
         type: String,
