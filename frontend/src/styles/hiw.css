@@ -1,0 +1,289 @@
+.hiw {
+  padding: 40px 2rem;
+  padding-top: 80px;
+  background: var(--bg-beige);
+  position: relative;
+  overflow: hidden;
+}
+
+.hiw-container {
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+}
+
+.section-tag {
+  font-family: var(--tortoise-glow);
+  font-size: 1.2rem;
+  color: var(--tortoise-accent);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.section-title {
+  font-family: var(--font-accent);
+  font-size: 3.2rem;
+  color: var(--text-obsidian);
+}
+
+.highlight {
+  background: linear-gradient(135deg, var(--tortoise-accent), var(--tortoise-glow));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stack {
+  background-image: url("../assets/table.jpg");
+  background-size: cover;      /* Scales image to fill the container without stretching */
+  background-position: center; /* Keeps the focus on the middle of the image */
+  background-repeat: no-repeat; /* Prevents the image from tiling */
+  
+  /* Your existing code */
+  border-radius: 40px;
+  position: relative;
+  height: 380px;
+  margin-top: 50px;
+  padding: 40px;
+}
+.stack::before{
+  position: absolute;
+  z-index: 100;
+  content: "";
+  background-image: url("../assets//sc.png");
+  width: 200px;
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  left: -50px;
+  top: -40px;
+  transform: rotate(-20deg);
+}
+.stack::after{
+  position: absolute;
+  z-index: 100;
+  content: "";
+  background-image: url("../assets/tape.png");
+  
+  width: 300px;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  right: -30px;
+  bottom: -30px;
+  /* transform: rotate(-20deg); */
+  filter: drop-shadow(15px 15px 25px rgba(0, 0, 0, 0.2));
+  
+  /* To make it look more like a "studio" shadow, layer two of them */
+  filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.1)) 
+          drop-shadow(20px 20px 40px rgba(0, 0, 0, 0.15));
+}
+
+/* CARD BASE */
+.card {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 28px;
+  padding: 35px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+align-items: center;
+justify-content: center;
+  /* background: rgba(255,255,255,0.65); */
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(0,0,0,0.05);
+ box-shadow: 
+    0 30px 80px rgba(0,0,0,0.15),
+    0 10px 20px rgba(0,0,0,0.08);
+
+  transition: all 0.5s cubic-bezier(0.22,1,0.36,1);
+  cursor: pointer;
+  overflow: hidden;
+  background-color:var(--tortoise-accent);
+}
+
+/* subtle glow inside */
+.card::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: var(--premium-glow);
+  top: -60px;
+  right: -60px;
+  filter: blur(60px);
+  opacity: 0.5;
+}
+
+/* STACK POSITION */
+.card-1 {
+  left: 18%;
+  transform: rotate(-6deg);
+  z-index: 3;
+}
+
+.card-2 {
+  left: 35%;
+  transform: rotate(2deg);
+  z-index: 2;
+}
+
+.card-3 {
+  left: 52%;
+  transform: rotate(6deg);
+  z-index: 1;
+}
+
+/* TEXT STYLING */
+.card-inner {
+  text-align: left;
+  position: relative;
+  z-index: 2;
+}
+
+.step-no {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: var(--font-accent);
+  margin-bottom: 10px;
+
+  background: linear-gradient(135deg, var(--tortoise-glow), var(--white));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  color: var(--white);
+}
+
+.card p {
+  font-family: var(--font-heading);
+  color: #c2c1c1;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+
+.stack:hover .card-1 {
+  transform: translateX(-130px) rotate(-8deg);
+}
+
+.stack:hover .card-2 {
+  transform: translateX(0px) rotate(0deg);
+}
+
+.stack:hover .card-3 {
+  transform: translateX(130px) rotate(8deg);
+}
+
+/* CARD HOVER */
+.card:hover {
+  transform: scale(1.06) rotate(0deg) !important;
+  z-index: 5;
+  box-shadow: 0 35px 80px rgba(0,0,0,0.15);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+.hiw {
+  padding: 60px 15px;
+  padding-bottom: 30px;
+}
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  .stack {
+    display: flex;
+    /* overflow-x: auto; */
+    gap: 20px;
+    height: auto;
+    
+    padding: 40px 10px;
+    flex-direction:column;
+    align-items: center;
+  }
+
+  .card {
+    position: relative;
+    /* min-width: 200px; */
+    transform: none !important;
+    padding: 10px 15px;
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    height: auto;
+    gap: 20px;
+  }
+.card-inner{
+  width: 100%;
+}
+  .card img{
+      /* width: 40% !important; */
+  }
+  .card-1{
+    left: 0;
+    position: relative;
+  }
+  .card-2{
+    left: 0;
+    position: relative;
+    flex-direction: row-reverse;
+  }
+  .card-3{
+    left: 0;
+    position: relative;
+  }
+}
+@media (max-width:520px) {
+  .hiw{
+    padding-bottom: 20px;
+    padding-top: 40px;
+  }
+  .stack{
+    /* padding: 20px 10px; */
+    margin-top: 20px;
+  }
+  .card-inner h3{
+    font-size: 14px;
+  }
+  .card-inner p{
+    font-size: 8px;
+  }
+  .card-img{
+    width: 50%  !important;
+  }
+  .card{
+    width: 95%;
+    gap: 10px;
+    padding: 10px;
+  }
+  .stack::before {
+    width: 140px;
+    left: -20px;
+    transform: rotate(-10deg);
+  }
+  .stack::after{
+    width: 200px;
+    height: 146px;
+    right: -5px;
+    /* transform: rotate(-10deg); */
+  }
+  .text2{
+    margin-bottom: 5px !important;
+  }
+}
+
+.card-img{
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 20px;
+}

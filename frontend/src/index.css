@@ -1,0 +1,65 @@
+:root {
+  /* Brand Colors */
+  /* --bg-beige: #F5F2ED; */
+  /* --bg-beige: #f5e7d0; */
+ --white:#fff;
+  --bg-beige: rgb(240, 240, 240);
+  --text-obsidian: #1A1A1A;
+  /* --tortoise-accent: #630F06; */
+  --tortoise-accent: rgb(20, 34,78);
+  /* --tortoise-accent: #; */
+  /* --tortoise-glow: #C24C21; */
+  --tortoise-glow:  rgb(120, 170,230);
+  --text-muted: #555555;
+
+  /* Global Font Assignments */
+  --font-heading: 'Syne', sans-serif;      /* Wide, Modern, Gen-Z */
+  --font-body: 'Urbanist', sans-serif;     /* Clean, Geometric, Premium */
+  --font-accent: 'Fraunces', serif;        /* Luxury Serif, Italicized */
+  --font-action: 'Times New Roman', sans-serif;     /* Functional, readable buttons */
+  --premium-glow: radial-gradient(circle, rgba(230, 219, 192, 0.4) 0%, transparent 70%);
+}
+*{
+  padding: 0;
+  margin: 0;
+}
+
+.head-text { font-family:var(--font-heading); font-size: 5rem; font-weight: 800; color: #1A1A1A; line-height: 1; margin-bottom: 1.5rem; }
+.text1 { font-family:var(--font-action); ; font-weight: 800; color: #1A1A1A; line-height: 1; margin-bottom: 1.5rem; }
+.text6 { font-family:var(--font-body); ; font-weight: 400;  }
+.text2 { font-family:var(  --font-accent); font-style: italic; font-size: 1.5rem; color: var(--tortoise-accent); margin-bottom: 1rem; display: block; }
+.text3 { font-family: var(--font-body); font-size: 1.2rem; color: #555; max-width: 700px; margin: 0 auto; line-height: 1.6; }
+
+.max-w{
+  max-width: 1440px;
+  /* align-self: center; */
+  margin: 0 auto;
+}
+.f-28{
+  font-size: 28px
+}
+.f-22{
+  font-size: 28px
+}
+@media (max-width: 768px) {
+  .f-28{
+  font-size: 24px !important;
+}
+.text-capsule-blue{
+   font-size: 24px !important;
+}
+.f-22{
+  font-size: 18px;
+}
+}
+@media (max-width: 420px) {
+    .f-28{
+  font-size: 14px !important;
+}
+.text-capsule-blue{
+   font-size: 14px !important;
+}
+.f-22{
+  font-size: 12px;
+}
+}
