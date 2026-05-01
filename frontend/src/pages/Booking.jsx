@@ -1,339 +1,449 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { bookingApi } from "../lib/api";
 import "../styles/booking.css";
-// import { Link } from 'react-router-dom'
 
-const OUTFITS = [
-  { id: "sherwani",   icon: "🥻", name: "Sherwani",      desc: "Wedding & ceremonial" },
-  { id: "suit",       icon: "🤵", name: "Custom Suit",    desc: "Formal & office wear" },
-  { id: "kurta",      icon: "👕", name: "Kurta Set",      desc: "Casual & festive"     },
-  { id: "bandhgala",  icon: "👔", name: "Bandhgala",      desc: "Indo-formal"          },
-  { id: "nehru",      icon: "🧥", name: "Nehru Jacket",   desc: "Layering piece"       },
-  { id: "alteration", icon: "✂️", name: "Alteration",     desc: "Repair & resize"      },
+const GARMENT_OPTIONS = ["shirt", "pant", "kurta", "suit", "blouse", "alteration"];
+const FABRIC_OPTIONS = ["cotton", "linen", "silk", "denim", "wool", "polyester"];
+const MEASUREMENT_FIELDS = [
+  ["chest", "Chest"],
+  ["waist", "Waist"],
+  ["shoulder", "Shoulder"],
+  ["sleeveLength", "Sleeve length"],
+  ["hips", "Hips"],
+  ["length", "Length"],
 ];
 
-const SLOTS = [
-  "10:00 AM – 12:00 PM",
-  "12:00 PM – 2:00 PM",
-  "2:00 PM – 4:00 PM",
-  "4:00 PM – 6:00 PM",
-  "6:00 PM – 8:00 PM",
-];
+const initialAddress = {
+  line1: "",
+  line2: "",
+  landmark: "",
+  city: "",
+  state: "",
+  pincode: "",
+};
 
-const STEPS = [
-  { num: 1, label: "What to stitch",  icon: "✂️" },
-  { num: 2, label: "Schedule visit",  icon: "📅" },
-  { num: 3, label: "Confirm",         icon: "✓"  },
-];
-
-// Dummy tailor — in real app pass via router state / context
-const TAILOR = {
-  name: "Master Ibrahim",
-  rating: 4.9,
-  reviews: 248,
-  exp: "22 yrs",
-  location: "Bandra West, Mumbai",
-  initials: "MI",
-  specialties: ["Sherwani", "Suits", "Bandhgala"],
+const initialMeasurements = {
+  unit: "inch",
+  chest: "",
+  waist: "",
+  shoulder: "",
+  sleeveLength: "",
+  hips: "",
+  length: "",
 };
 
 export default function Booking() {
   const navigate = useNavigate();
-  const [step, setStep]     = useState(1);
-  const [done, setDone]     = useState(false);
-  const [outfit, setOutfit] = useState(null);
-  const [notes, setNotes]   = useState("");
-  const [date, setDate]     = useState("");
-  const [slot, setSlot]     = useState("");
-  const [address, setAddress] = useState("");
+  const [garmentType, setGarmentType] = useState("shirt");
+  const [customGarment, setCustomGarment] = useState("");
+  const [fabricType, setFabricType] = useState("cotton");
+  const [fabricColor, setFabricColor] = useState("");
+  const [fabricProvidedBy, setFabricProvidedBy] = useState("customer");
+  const [measurementPreference, setMeasurementPreference] = useState("tailor_visit");
+  const [measurements, setMeasurements] = useState(initialMeasurements);
+  const [measurementImage, setMeasurementImage] = useState(null);
+  const [referenceImages, setReferenceImages] = useState([]);
+  const [deliveryMethod, setDeliveryMethod] = useState("tailor_pickup");
+  const [address, setAddress] = useState(initialAddress);
+  const [coordinates, setCoordinates] = useState({ lat: "", lng: "" });
+  const [customerNote, setCustomerNote] = useState("");
+  const [status, setStatus] = useState({ type: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [locating, setLocating] = useState(false);
 
-  const today = new Date().toISOString().split("T")[0];
-  const canNext1 = !!outfit;
-  const canNext2 = !!date && !!slot && address.trim().length > 5;
-  const selectedOutfit = OUTFITS.find(o => o.id === outfit);
+  const selectedGarment = customGarment.trim() || garmentType;
+  const hasManualMeasurement = useMemo(() => (
+    MEASUREMENT_FIELDS.some(([key]) => String(measurements[key] || "").trim())
+  ), [measurements]);
 
-  const formattedDate = date
-    ? new Date(date).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
-    : "";
+  const updateAddress = (field, value) => {
+    setAddress((current) => ({ ...current, [field]: value }));
+  };
 
-  if (done) return (
-    <div className="bp-page">
-      <div className="bp-success-wrap">
-        <div className="bp-success-card">
-          <div className="bp-success-icon">✓</div>
-          <h2 className="bp-success-title">Booking Confirmed!</h2>
-          <p className="bp-success-sub">
-            <strong>{TAILOR.name}</strong> will visit you on <strong>{formattedDate}</strong> between <strong>{slot}</strong>.
-          </p>
+  const updateMeasurement = (field, value) => {
+    setMeasurements((current) => ({ ...current, [field]: value }));
+  };
 
-          <div className="bp-success-details">
-            <div className="bp-sd-row"><span>Outfit</span><strong>{selectedOutfit?.icon} {selectedOutfit?.name}</strong></div>
-            <div className="bp-sd-row"><span>Date</span><strong>{formattedDate}</strong></div>
-            <div className="bp-sd-row"><span>Time</span><strong>{slot}</strong></div>
-            <div className="bp-sd-row"><span>Address</span><strong>{address}</strong></div>
-            <div className="bp-sd-row"><span>Visit Fee</span><strong>₹299 (pay on arrival)</strong></div>
-          </div>
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) {
+      setStatus({ type: "error", message: "Your browser does not support location access." });
+      return;
+    }
 
-          <div className="bp-whatsapp-note">
-            📱 A confirmation has been sent to your WhatsApp
-          </div>
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoordinates({
+          lat: String(position.coords.latitude.toFixed(6)),
+          lng: String(position.coords.longitude.toFixed(6)),
+        });
+        setLocating(false);
+      },
+      () => {
+        setStatus({ type: "error", message: "Could not read your location. Please enter coordinates manually." });
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
 
-          <div className="bp-success-actions">
-            <button className="bp-btn-primary" onClick={() => navigate("/")}>Back to Home</button>
-            <button className="bp-btn-outline" onClick={() => navigate("/dashboard")}>View My Orders</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const validateForm = () => {
+    if (!selectedGarment.trim()) return "Please enter what you want stitched.";
+    if (!address.line1.trim()) return "Address line 1 is required.";
+    if (!coordinates.lat || !coordinates.lng) return "Latitude and longitude are required.";
+
+    if (measurementPreference === "measurement_image" && !measurementImage) {
+      return "Please upload a measurement image.";
+    }
+
+    if (measurementPreference === "manual_values" && !hasManualMeasurement) {
+      return "Please add at least one measurement value.";
+    }
+
+    return "";
+  };
+
+  const buildMeasurementsPayload = () => {
+    const payload = { unit: measurements.unit };
+
+    MEASUREMENT_FIELDS.forEach(([key]) => {
+      const value = String(measurements[key] || "").trim();
+      if (value) payload[key] = Number(value);
+    });
+
+    return payload;
+  };
+
+  const buildFormData = () => {
+    const formData = new FormData();
+    formData.append("garmentType", selectedGarment.trim());
+    formData.append("fabricType", fabricType.trim());
+    formData.append("fabricColor", fabricColor.trim());
+    formData.append("fabricProvidedBy", fabricProvidedBy);
+    formData.append("measurementPreference", measurementPreference);
+    formData.append("deliveryMethod", deliveryMethod);
+    formData.append("coordinates", JSON.stringify({
+      lat: Number(coordinates.lat),
+      lng: Number(coordinates.lng),
+    }));
+    formData.append("deliveryAddress", JSON.stringify(address));
+
+    if (customerNote.trim()) {
+      formData.append("customerNote", customerNote.trim());
+    }
+
+    if (measurementPreference === "manual_values") {
+      formData.append("measurements", JSON.stringify(buildMeasurementsPayload()));
+    }
+
+    if (measurementPreference === "measurement_image" && measurementImage) {
+      formData.append("measurementImage", measurementImage);
+    }
+
+    referenceImages.forEach((file) => {
+      formData.append("referenceImages", file);
+    });
+
+    return formData;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const validationError = validateForm();
+
+    if (validationError) {
+      setStatus({ type: "error", message: validationError });
+      return;
+    }
+
+    setSubmitting(true);
+    setStatus({ type: "", message: "" });
+
+    try {
+      const response = await bookingApi.createOrder(buildFormData());
+      const order = response?.data;
+      navigate(`/orders/${order?._id}`, {
+        replace: true,
+        state: {
+          flash: response?.message || "Order created successfully.",
+        },
+      });
+    } catch (error) {
+      setStatus({ type: "error", message: error.message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div className="bp-page">
+    <main className="order-page">
+      <section className="order-hero">
+        <div>
+          <p className="order-kicker">New order</p>
+          <h1>Create a stitching order</h1>
+          <p>Share garment, fabric, address, coordinates, and measurement preference. Nearby tailors will receive the request automatically.</p>
+        </div>
+        <Link to="/orders" className="order-link-button">View my orders</Link>
+      </section>
 
-      {/* TOP BAR */}
-      <div className="bp-topbar">
-        <button className="bp-back-link" onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)}>
-          ← {step > 1 ? "Back" : "Back to Profile"}
-        </button>
-        <div className="bp-topbar-title">Book Appointment</div>
-        <div className="bp-topbar-step">Step {step} of 3</div>
-      </div>
+      <form className="order-layout" onSubmit={handleSubmit}>
+        <div className="order-main">
+          <section className="order-panel">
+            <div className="order-panel-head">
+              <h2>Garment details</h2>
+              <p>Choose the service tailors should match against.</p>
+            </div>
 
-      <div className="bp-layout">
-
-        {/* LEFT — STEP CONTENT */}
-        <div className="bp-main">
-
-          {/* STEP PROGRESS */}
-          <div className="bp-progress">
-            {STEPS.map((s, i) => (
-              <React.Fragment key={s.num}>
-                <div className={`bp-step ${step === s.num ? "active" : ""} ${step > s.num ? "done" : ""}`}>
-                  <div className="bp-step-circle">
-                    {step > s.num ? "✓" : s.num}
-                  </div>
-                  <span className="bp-step-label">{s.label}</span>
-                </div>
-                {i < STEPS.length - 1 && (
-                  <div className={`bp-step-connector ${step > s.num ? "done" : ""}`} />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-
-          {/* ── STEP 1 — OUTFIT ── */}
-          {step === 1 && (
-            <div className="bp-card">
-              <div className="bp-card-header">
-                <h2>What would you like stitched?</h2>
-                <p>Select the outfit type for this home visit</p>
-              </div>
-
-              <div className="bp-outfit-grid">
-                {OUTFITS.map(o => (
-                  <div
-                    key={o.id}
-                    className={`bp-outfit-item ${outfit === o.id ? "selected" : ""}`}
-                    onClick={() => setOutfit(o.id)}
-                  >
-                    {outfit === o.id && <div className="bp-outfit-check">✓</div>}
-                    <div className="bp-outfit-icon">{o.icon}</div>
-                    <div className="bp-outfit-name">{o.name}</div>
-                    <div className="bp-outfit-desc">{o.desc}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bp-field">
-                <label>
-                  Special notes
-                  <span className="bp-optional">optional</span>
-                </label>
-                <textarea
-                  className="bp-textarea"
-                  rows={3}
-                  placeholder="e.g. Wedding on Dec 15, want dark maroon fabric, open to suggestions on embroidery…"
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                />
-              </div>
-
-              <div className="bp-step-footer">
+            <div className="order-choice-grid">
+              {GARMENT_OPTIONS.map((item) => (
                 <button
-                  className="bp-btn-primary"
-                  disabled={!canNext1}
-                  onClick={() => setStep(2)}
+                  className={`order-choice ${garmentType === item && !customGarment ? "active" : ""}`}
+                  key={item}
+                  type="button"
+                  onClick={() => {
+                    setGarmentType(item);
+                    setCustomGarment("");
+                  }}
                 >
-                  Continue → Schedule Visit
+                  {item}
                 </button>
+              ))}
+            </div>
+
+            <div className="order-field">
+              <label htmlFor="customGarment">Other garment</label>
+              <input
+                id="customGarment"
+                value={customGarment}
+                onChange={(event) => setCustomGarment(event.target.value)}
+                placeholder="Example: lehenga, skirt, school uniform"
+              />
+            </div>
+
+            <div className="order-two">
+              <div className="order-field">
+                <label htmlFor="fabricType">Fabric</label>
+                <select id="fabricType" value={fabricType} onChange={(event) => setFabricType(event.target.value)}>
+                  {FABRIC_OPTIONS.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </div>
+              <div className="order-field">
+                <label htmlFor="fabricColor">Fabric color</label>
+                <input
+                  id="fabricColor"
+                  value={fabricColor}
+                  onChange={(event) => setFabricColor(event.target.value)}
+                  placeholder="White, navy, maroon"
+                />
               </div>
             </div>
-          )}
 
-          {/* ── STEP 2 — SCHEDULE ── */}
-          {step === 2 && (
-            <div className="bp-card">
-              <div className="bp-card-header">
-                <h2>Schedule your home visit</h2>
-                <p>{TAILOR.name} will come to your door for measurements</p>
+            <div className="order-field">
+              <label>Fabric provided by</label>
+              <div className="order-segment">
+                {[
+                  ["customer", "Customer"],
+                  ["tailor", "Tailor"],
+                  ["undecided", "Decide later"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={fabricProvidedBy === value ? "active" : ""}
+                    type="button"
+                    onClick={() => setFabricProvidedBy(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
+            </div>
+          </section>
 
-              <div className="bp-field">
-                <label>Preferred Date</label>
+          <section className="order-panel">
+            <div className="order-panel-head">
+              <h2>Measurements</h2>
+              <p>Pick one method only.</p>
+            </div>
+
+            <div className="order-method-grid">
+              {[
+                ["tailor_visit", "Tailor will take measurements", "No measurement file or values needed."],
+                ["measurement_image", "Upload measurement image", "Send one clear photo with body measurements."],
+                ["manual_values", "Enter measurements", "Add values in inch or cm."],
+              ].map(([value, title, description]) => (
+                <button
+                  className={`order-method ${measurementPreference === value ? "active" : ""}`}
+                  key={value}
+                  type="button"
+                  onClick={() => {
+                    setMeasurementPreference(value);
+                    if (value !== "measurement_image") setMeasurementImage(null);
+                    if (value !== "manual_values") setMeasurements(initialMeasurements);
+                  }}
+                >
+                  <strong>{title}</strong>
+                  <span>{description}</span>
+                </button>
+              ))}
+            </div>
+
+            {measurementPreference === "measurement_image" && (
+              <div className="order-field">
+                <label htmlFor="measurementImage">Measurement image</label>
                 <input
-                  type="date"
-                  className="bp-input"
-                  value={date}
-                  min={today}
-                  onChange={e => setDate(e.target.value)}
+                  id="measurementImage"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => setMeasurementImage(event.target.files?.[0] || null)}
                 />
               </div>
+            )}
 
-              <div className="bp-field">
-                <label>Pick a Time Slot</label>
-                <div className="bp-slots">
-                  {SLOTS.map(t => (
-                    <div
-                      key={t}
-                      className={`bp-slot ${slot === t ? "selected" : ""}`}
-                      onClick={() => setSlot(t)}
-                    >
-                      {slot === t && <span className="bp-slot-check">✓</span>}
-                      {t}
+            {measurementPreference === "manual_values" && (
+              <>
+                <div className="order-field order-unit-field">
+                  <label htmlFor="unit">Unit</label>
+                  <select id="unit" value={measurements.unit} onChange={(event) => updateMeasurement("unit", event.target.value)}>
+                    <option value="inch">inch</option>
+                    <option value="cm">cm</option>
+                  </select>
+                </div>
+                <div className="order-measure-grid">
+                  {MEASUREMENT_FIELDS.map(([key, label]) => (
+                    <div className="order-field" key={key}>
+                      <label htmlFor={key}>{label}</label>
+                      <input
+                        id={key}
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={measurements[key]}
+                        onChange={(event) => updateMeasurement(key, event.target.value)}
+                      />
                     </div>
                   ))}
                 </div>
-              </div>
+              </>
+            )}
+          </section>
 
-              <div className="bp-field">
-                <label>Your Address</label>
-                <textarea
-                  className="bp-textarea"
-                  rows={3}
-                  placeholder="Flat no., Building name, Street, Area, City, Pincode…"
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                />
-                <div className="bp-field-note">📍 The tailor will visit this address</div>
-              </div>
+          <section className="order-panel">
+            <div className="order-panel-head">
+              <h2>Address and reference</h2>
+              <p>Coordinates are used to find tailors within 15 km.</p>
+            </div>
 
-              <div className="bp-step-footer">
-                <button className="bp-btn-outline" onClick={() => setStep(1)}>← Back</button>
-                <button
-                  className="bp-btn-primary"
-                  disabled={!canNext2}
-                  onClick={() => setStep(3)}
-                >
-                  Continue → Review
-                </button>
+            <div className="order-field">
+              <label>Delivery method</label>
+              <div className="order-segment">
+                {[
+                  ["tailor_pickup", "Tailor pickup"],
+                  ["self_deliver", "Self deliver"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={deliveryMethod === value ? "active" : ""}
+                    type="button"
+                    onClick={() => setDeliveryMethod(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
-          )}
 
-          {/* ── STEP 3 — CONFIRM ── */}
-          {step === 3 && (
-            <div className="bp-card">
-              <div className="bp-card-header">
-                <h2>Review & Confirm</h2>
-                <p>Check your details before confirming the booking</p>
+            <div className="order-field">
+              <label htmlFor="line1">Address line 1</label>
+              <input id="line1" value={address.line1} onChange={(event) => updateAddress("line1", event.target.value)} />
+            </div>
+
+            <div className="order-field">
+              <label htmlFor="line2">Address line 2</label>
+              <input id="line2" value={address.line2} onChange={(event) => updateAddress("line2", event.target.value)} />
+            </div>
+
+            <div className="order-three">
+              <div className="order-field">
+                <label htmlFor="city">City</label>
+                <input id="city" value={address.city} onChange={(event) => updateAddress("city", event.target.value)} />
               </div>
-
-              <div className="bp-review-block">
-                <div className="bp-review-label">Outfit</div>
-                <div className="bp-review-val bp-review-outfit">
-                  <span>{selectedOutfit?.icon}</span>
-                  <div>
-                    <strong>{selectedOutfit?.name}</strong>
-                    <span>{selectedOutfit?.desc}</span>
-                  </div>
-                </div>
+              <div className="order-field">
+                <label htmlFor="state">State</label>
+                <input id="state" value={address.state} onChange={(event) => updateAddress("state", event.target.value)} />
               </div>
-
-              <div className="bp-review-grid">
-                <div className="bp-review-block">
-                  <div className="bp-review-label">Date</div>
-                  <div className="bp-review-val">{formattedDate}</div>
-                </div>
-                <div className="bp-review-block">
-                  <div className="bp-review-label">Time Slot</div>
-                  <div className="bp-review-val">{slot}</div>
-                </div>
-              </div>
-
-              <div className="bp-review-block">
-                <div className="bp-review-label">Address</div>
-                <div className="bp-review-val">{address}</div>
-              </div>
-
-              {notes && (
-                <div className="bp-review-block">
-                  <div className="bp-review-label">Your Notes</div>
-                  <div className="bp-review-val">{notes}</div>
-                </div>
-              )}
-
-              <div className="bp-fee-row">
-                <div>
-                  <div className="bp-fee-title">Visit Fee</div>
-                  <div className="bp-fee-note">Stitching cost discussed after measurements</div>
-                </div>
-                <div className="bp-fee-amount">₹299</div>
-              </div>
-
-              <div className="bp-pay-badge">
-                💳 Pay ₹299 in cash on arrival — no online payment needed now
-              </div>
-
-              <div className="bp-step-footer">
-                <button className="bp-btn-outline" onClick={() => setStep(2)}>← Back</button>
-                <button className="bp-btn-primary bp-btn-confirm" onClick={() => setDone(true)}>
-                  Confirm Booking →
-                </button>
+              <div className="order-field">
+                <label htmlFor="pincode">Pincode</label>
+                <input id="pincode" value={address.pincode} onChange={(event) => updateAddress("pincode", event.target.value)} />
               </div>
             </div>
-          )}
+
+            <div className="order-two align-end">
+              <div className="order-field">
+                <label htmlFor="lat">Latitude</label>
+                <input id="lat" type="number" step="any" value={coordinates.lat} onChange={(event) => setCoordinates((current) => ({ ...current, lat: event.target.value }))} />
+              </div>
+              <div className="order-field">
+                <label htmlFor="lng">Longitude</label>
+                <input id="lng" type="number" step="any" value={coordinates.lng} onChange={(event) => setCoordinates((current) => ({ ...current, lng: event.target.value }))} />
+              </div>
+              <button className="order-secondary-action" type="button" onClick={handleUseLocation} disabled={locating}>
+                {locating ? "Reading location" : "Use my location"}
+              </button>
+            </div>
+
+            <div className="order-field">
+              <label htmlFor="referenceImages">Reference images</label>
+              <input
+                id="referenceImages"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                onChange={(event) => setReferenceImages(Array.from(event.target.files || []).slice(0, 5))}
+              />
+            </div>
+
+            <div className="order-field">
+              <label htmlFor="customerNote">Suggestion for tailor</label>
+              <textarea
+                id="customerNote"
+                value={customerNote}
+                onChange={(event) => setCustomerNote(event.target.value)}
+                placeholder="Fit preference, deadline, design idea, pickup instruction"
+              />
+            </div>
+          </section>
         </div>
 
-        {/* RIGHT — TAILOR STICKY CARD */}
-        <div className="bp-sidebar">
-          <div className="bp-tailor-card">
-            <div className="bp-tc-header">Booking with</div>
-            <div className="bp-tc-tailor">
-              <div className="bp-tc-av">{TAILOR.initials}</div>
-              <div>
-                <div className="bp-tc-name">{TAILOR.name}</div>
-                <div className="bp-tc-meta">⭐ {TAILOR.rating} · {TAILOR.reviews} reviews</div>
-                <div className="bp-tc-meta">📍 {TAILOR.location}</div>
-              </div>
+        <aside className="order-summary-panel">
+          <h2>Order summary</h2>
+          <div className="order-summary-list">
+            <div>
+              <span>Garment</span>
+              <strong>{selectedGarment}</strong>
             </div>
-            <div className="bp-tc-tags">
-              {TAILOR.specialties.map(s => (
-                <span key={s} className="bp-tc-tag">{s}</span>
-              ))}
+            <div>
+              <span>Fabric</span>
+              <strong>{fabricType || "Not set"}</strong>
             </div>
-            <div className="bp-tc-divider" />
-            <div className="bp-tc-price-row">
-              <span>Visit fee</span>
-              <strong>₹299</strong>
+            <div>
+              <span>Measurement</span>
+              <strong>{measurementPreference.replace("_", " ")}</strong>
             </div>
-            <div className="bp-tc-price-row">
-              <span>Stitching from</span>
-              <strong>₹1,200+</strong>
-            </div>
-            <div className="bp-tc-note">
-              Final stitching price quoted after the tailor takes measurements
+            <div>
+              <span>Delivery</span>
+              <strong>{deliveryMethod.replace("_", " ")}</strong>
             </div>
           </div>
 
-          <div className="bp-trust-card">
-            <div className="bp-trust-item">🔒 Secure & verified tailor</div>
-            <div className="bp-trust-item">📐 Precise home measurements</div>
-            <div className="bp-trust-item">🚚 Outfit delivered in 48–72 hrs</div>
-            <div className="bp-trust-item">↩️ Free alterations if needed</div>
-          </div>
-        </div>
+          {status.message && <div className={`order-message ${status.type}`}>{status.message}</div>}
 
-      </div>
-    </div>
+          <button className="order-primary-action" type="submit" disabled={submitting}>
+            {submitting ? "Creating order" : "Create order"}
+          </button>
+          <p className="order-muted">Tailors who accept will appear in your order detail page.</p>
+        </aside>
+      </form>
+    </main>
   );
 }

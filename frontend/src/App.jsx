@@ -16,6 +16,9 @@ import TailorProfile from "./pages/TailorProfile";
 import TailorLogin from "./pages/TailorLogin";
 import TailorSignup from "./pages/TailorSignup";
 import Booking from "./pages/Booking";
+import CustomerOrders from "./pages/CustomerOrders";
+import OrderDetails from "./pages/OrderDetails";
+import TailorRequests from "./pages/TailorRequests";
 import HowItWorks from "./pages/HowItWorks";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
@@ -90,6 +93,30 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["customer"]}>
                 <Booking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute allowedRoles={["customer"]}>
+                <CustomerOrders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:orderId"
+            element={
+              <ProtectedRoute allowedRoles={["customer", "tailor"]}>
+                <OrderDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tailor-requests"
+            element={
+              <ProtectedRoute allowedRoles={["tailor"]} loginPath="/tailor-login">
+                <TailorRequests />
               </ProtectedRoute>
             }
           />

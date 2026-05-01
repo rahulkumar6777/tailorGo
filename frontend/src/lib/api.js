@@ -163,3 +163,66 @@ export const tailorApi = {
     });
   },
 };
+
+export const bookingApi = {
+  createOrder: (formData) =>
+    apiRequest("/v1/booking/orders", {
+      method: "POST",
+      body: formData,
+    }),
+
+  getMyOrders: () =>
+    apiRequest("/v1/booking/orders/my", {
+      method: "GET",
+    }),
+
+  getOrder: (orderId) =>
+    apiRequest(`/v1/booking/orders/${orderId}`, {
+      method: "GET",
+    }),
+
+  getAcceptedTailors: (orderId) =>
+    apiRequest(`/v1/booking/orders/${orderId}/responses`, {
+      method: "GET",
+    }),
+
+  confirmTailor: (orderId, payload) =>
+    apiRequest(`/v1/booking/orders/${orderId}/confirm`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  getTailorRequests: () =>
+    apiRequest("/v1/booking/tailor/requests", {
+      method: "GET",
+    }),
+
+  acceptOrder: (orderId, payload) =>
+    apiRequest(`/v1/booking/orders/${orderId}/accept`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  updateOrderStatus: (orderId, status) =>
+    apiRequest(`/v1/booking/orders/${orderId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    }),
+
+  cancelOrder: (orderId, reason) =>
+    apiRequest(`/v1/booking/orders/${orderId}/cancel`, {
+      method: "PATCH",
+      body: JSON.stringify({ reason }),
+    }),
+
+  createPaymentOrder: (orderId) =>
+    apiRequest(`/v1/booking/orders/${orderId}/payment/create`, {
+      method: "POST",
+    }),
+
+  verifyPayment: (orderId, payload) =>
+    apiRequest(`/v1/booking/orders/${orderId}/payment/verify`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+};

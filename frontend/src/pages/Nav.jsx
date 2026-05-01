@@ -47,6 +47,9 @@ function Nav() {
     if (user?.role === "tailor") {
       return (
         <>
+          <Link to="/tailor-requests" className={`btn-secondary${classSuffix}`} onClick={closeMenu}>
+            Requests
+          </Link>
           <Link to="/tailor-profile" className={`btn-secondary${classSuffix}`} onClick={closeMenu}>
             Tailor Profile
           </Link>
@@ -59,8 +62,11 @@ function Nav() {
 
     return (
       <>
+        <Link to="/orders" className={`btn-secondary${classSuffix}`} onClick={closeMenu}>
+          My Orders
+        </Link>
         <Link to="/booking" className={`btn-secondary${classSuffix}`} onClick={closeMenu}>
-          My Booking
+          New Order
         </Link>
         <button className={`btn-primary nav-button${classSuffix}`} onClick={handleLogout} disabled={loggingOut}>
           {loggingOut ? "Signing Out" : "Logout"}
