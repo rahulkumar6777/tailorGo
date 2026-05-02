@@ -8,13 +8,16 @@ import { corsOption } from './core/security/corsOption.js';
 import { connectDb } from './core/db/mongo.js';
 await connectDb();
 
+
+// express app initialization
+const app = express();
+
+
+
 // cors
 import cors from "cors";
 app.use(cors(corsOption));
 
-
-// express app initialization
-const app = express();
 
 
 // express parser
