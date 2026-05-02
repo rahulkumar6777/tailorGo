@@ -13,6 +13,13 @@ await connectDb();
 const app = express();
 
 
+
+// cors
+import cors from "cors";
+app.use(cors(corsOption));
+
+
+
 // express parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,10 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 import cookieParser from "cookie-parser";
 app.use(cookieParser());
 
-
-// cors
-import cors from "cors";
-app.use(cors(corsOption));
 
 
 // helmet
