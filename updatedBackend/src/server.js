@@ -11,20 +11,6 @@ import '../src/shared/workers/welcomeWorker.js'
 import '../src/shared/workers/orderNotificationWorker.js'
 
 
-//rate limit
-import { rateLimit } from 'express-rate-limit'
-app.use(
-    "/api",
-    rateLimit({
-        windowMs: 60 * 1000,
-        max: 100,
-        standardHeaders: true,
-        legacyHeaders: false,
-        message: { error: "Too many requests, please try again later." }
-    }),
-);
-
-
 //healthcheck routes
 app.use('/tailorGoHealth', (req, res) => {
     return res.status(200).json({
