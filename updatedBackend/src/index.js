@@ -8,6 +8,10 @@ import { corsOption } from './core/security/corsOption.js';
 import { connectDb } from './core/db/mongo.js';
 await connectDb();
 
+// cors
+import cors from "cors";
+app.use(cors(corsOption));
+
 
 // express app initialization
 const app = express();
@@ -22,10 +26,6 @@ app.use(express.urlencoded({ extended: true }));
 import cookieParser from "cookie-parser";
 app.use(cookieParser());
 
-
-// cors
-import cors from "cors";
-app.use(cors(corsOption));
 
 
 // helmet
